@@ -1,0 +1,44 @@
+---
+- name: Configuracion de NFS Server
+  hosts: Centos
+  become: true
+  
+  tasks:
+  - name: Asegurarse que nfs-utils esta instalado
+    ansible.builtin.package:
+      name: nfs-utils
+      state: present
+
+  - name: Iniciar y habilitar nfs
+    ansible.builtin.service:
+      name: nfs-server
+      enabled: true
+      state: started
+
+  - name: Abrir puerto 2049
+    ansible.posix.firewalld:
+      service: nfs
+      permanent: true
+      immediate: true
+      state: enabled
+      
+  - name: Crear /var/nfs_shared
+    ansible.builtin.file:
+      path: /var/nfs_shared
+      state: directory
+      owner: nobody
+      group: nobody
+      mode: '777'
+        
+  - name: Compartir carpeta por NFS
+    ansible.builtin.lineinfile:
+      path: /etc/exports
+      line: /var/nfs_shared/  *(rw,sync,no_subtree_check)
+      state: present
+    notify:
+      - Releer /etc/exports    
+
+  handlers: 
+    - name: Releer /etc/exports
+      ansible.builtin.shell:
+        cmd: exportfs -r

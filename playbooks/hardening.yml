@@ -1,0 +1,55 @@
+---
+- name: Actualizar y hardenizar Ubuntu
+  hosts: Ubuntu
+  become: true
+
+  tasks:
+  - name: Actualizar paquetes
+    ansible.builtin.apt:
+      name: "*"
+      state: latest
+    notify: Reiniciar el equipo
+      
+  - name: Configurar Firewall
+    community.general.ufw:
+      state: enabled
+      default: deny
+      rule: allow
+      port: ssh
+      proto: tcp
+
+  - name: Login con clave publica, root no puede login
+    ansible.builtin.lineinfile:
+      path: /etc/ssh/sshd_config
+      search_string: "{{ item.search_string }}"
+      state: present
+      line: "{{ item.line }}"
+    loop:
+      - {search_string: "#PasswordAuthentication yes", line: PasswordAuthentication no }
+      - {search_string: "#PermitRootLogin prohibit-password", line: PermitRootLogin no }
+    notify: Reiniciar SSH
+
+  - name: Instalar fail2ban
+    ansible.builtin.package:
+      name: fail2ban
+      state: present
+
+  - name: Configurar fail2ban
+    ansible.builtin.copy:
+      src: ~/taller_linux2025/jail.local
+      dest: /etc/fail2ban/jail.local
+
+  - name: Iniciar y habilitar fail2ban
+    ansible.builtin.service:
+      name: fail2ban
+      enabled: true
+      state: started
+
+  handlers: 
+    - name: Reiniciar el equipo
+      ansible.builtin.reboot:
+
+    - name: Reiniciar SSH
+      ansible.builtin.service:
+        name: sshd
+        state: restarted
