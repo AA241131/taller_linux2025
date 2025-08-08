@@ -377,7 +377,7 @@ Aplicar los conocimientos básicos de Ansible sobre dos distribuciones Linux:
 
           - name: Configurar fail2ban
             ansible.builtin.copy:
-              src: ~/taller_linux2025/jail.local
+              src: ./jail.local
               dest: /etc/fail2ban/jail.local
 
           - name: Iniciar y habilitar fail2ban
