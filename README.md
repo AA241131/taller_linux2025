@@ -351,7 +351,8 @@ Aplicar los conocimientos básicos de Ansible sobre dos distribuciones Linux:
             ansible.builtin.apt:
               name: "*"
               state: latest
-              notify: Reiniciar el equipo
+            notify: 
+	      - Reiniciar el equipo
 
           - name: Configurar Firewall
             community.general.ufw:
@@ -370,7 +371,8 @@ Aplicar los conocimientos básicos de Ansible sobre dos distribuciones Linux:
             loop:
               - {search_string: "#PasswordAuthentication yes", line: PasswordAuthentication no }
               - {search_string: "#PermitRootLogin prohibit-password", line: PermitRootLogin no }
-            notify: Reiniciar SSH
+            notify: 
+	      - Reiniciar SSH
 
           - name: Instalar fail2ban
             ansible.builtin.package:
@@ -379,7 +381,7 @@ Aplicar los conocimientos básicos de Ansible sobre dos distribuciones Linux:
 
           - name: Configurar fail2ban
             ansible.builtin.copy:
-              src: ./jail.local
+              src: ../jail.local
               dest: /etc/fail2ban/jail.local
 
           - name: Iniciar y habilitar fail2ban
@@ -394,7 +396,7 @@ Aplicar los conocimientos básicos de Ansible sobre dos distribuciones Linux:
 
             - name: Reiniciar SSH
               ansible.builtin.service:
-                name: sshd
+                name: ssh
                 state: restarted
         ```
 
@@ -405,7 +407,11 @@ Aplicar los conocimientos básicos de Ansible sobre dos distribuciones Linux:
         Ejecutar playbook
 
         `ansible-playbook playbooks/hardening.yml -K`
-        
+
+	![NFS_Setup](./imagenes/4.2_hardening_3.png "NFS Setup.")
+
+        Ejecutamos de nuevo para comprobar el estado y confirmar que no se activan los handlers.
+
         ![NFS_Setup](./imagenes/4.2_hardening_2.png "NFS Setup.")
         
 5. ### Cuestionario

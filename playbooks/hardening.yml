@@ -8,7 +8,8 @@
     ansible.builtin.apt:
       name: "*"
       state: latest
-    notify: Reiniciar el equipo
+    notify: 
+      - Reiniciar el equipo
       
   - name: Configurar Firewall
     community.general.ufw:
@@ -27,7 +28,8 @@
     loop:
       - {search_string: "#PasswordAuthentication yes", line: PasswordAuthentication no }
       - {search_string: "#PermitRootLogin prohibit-password", line: PermitRootLogin no }
-    notify: Reiniciar SSH
+    notify: 
+      - Reiniciar SSH
 
   - name: Instalar fail2ban
     ansible.builtin.package:
@@ -36,7 +38,7 @@
 
   - name: Configurar fail2ban
     ansible.builtin.copy:
-      src: ./jail.local
+      src: ../jail.local
       dest: /etc/fail2ban/jail.local
 
   - name: Iniciar y habilitar fail2ban
@@ -51,5 +53,5 @@
 
     - name: Reiniciar SSH
       ansible.builtin.service:
-        name: sshd
+        name: ssh
         state: restarted
