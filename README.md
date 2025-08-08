@@ -408,7 +408,7 @@ Aplicar los conocimientos básicos de Ansible sobre dos distribuciones Linux:
 
         `ansible-playbook playbooks/hardening.yml -K`
 
-	![NFS_Setup](./imagenes/4.2_hardening_3.png "NFS Setup.")
+		![NFS_Setup](./imagenes/4.2_hardening_3.png "NFS Setup.")
 
         Ejecutamos de nuevo para comprobar el estado y confirmar que no se activan los handlers.
 
@@ -456,4 +456,5 @@ Aplicar los conocimientos básicos de Ansible sobre dos distribuciones Linux:
     https://github.com/fail2ban/fail2ban/wiki/Proper-fail2ban-configuration
     https://docs.ansible.com/ansible/latest/collections/ansible/builtin/copy_module.html
     https://www.redhat.com/en/ansible-collaborative/how-ansible-works
+
 
