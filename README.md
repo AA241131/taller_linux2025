@@ -439,7 +439,7 @@ Aplicar los conocimientos básicos de Ansible sobre dos distribuciones Linux:
           
         ![bloqueo ssh](./imagenes/6.1_passwordauthentication_2.png "bloqueo ssh")
           
-    2. PermitRootLogin
+    2. #### PermitRootLogin
         La cuenta root está bloqueada por defecto en Ubuntu: 
 
         ![root](./imagenes/6.2_permitrootlogin_1.png "root locked")
@@ -458,7 +458,7 @@ Aplicar los conocimientos básicos de Ansible sobre dos distribuciones Linux:
 
         ![root login ssh](./imagenes/6.2_permitrootlogin_3.png "root login ssh blocked")
 
-    3. fail2ban
+    3. #### fail2ban
         Activamos el login por password, y forzamos un error 5 veces. La conexión se rechazada:
 
         ![fail2ban](./imagenes/6.3_fail2ban_1.png "fail2ban")
