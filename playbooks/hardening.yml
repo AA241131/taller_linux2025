@@ -22,8 +22,8 @@
   - name: Login con clave publica, root no puede login
     ansible.builtin.lineinfile:
       path: /etc/ssh/sshd_config.d/50-cloud-init.conf
-      search_string: "PasswordAuthentication yes"
-      state: present
+      backrefs: true # no insertar la linea si no hay matches
+      regex: "^PasswordAuthentication yes"
       line: |
         PasswordAuthentication no 
         PermitRootLogin no

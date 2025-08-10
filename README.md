@@ -365,9 +365,9 @@ Aplicar los conocimientos básicos de Ansible sobre dos distribuciones Linux:
           - name: Login con clave publica, root no puede login
             ansible.builtin.lineinfile:
               path: /etc/ssh/sshd_config.d/50-cloud-init.conf
-              search_string: "PasswordAuthentication yes"
-              state: present
-              line: |
+              backrefs: true # no insertar la linea si no hay matches
+	      regex: "^PasswordAuthentication yes"
+	      line: |
                 PasswordAuthentication no 
                 PermitRootLogin no       
             notify: Reiniciar SSH
