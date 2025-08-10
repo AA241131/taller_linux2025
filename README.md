@@ -240,8 +240,9 @@ Aplicar los conocimientos básicos de Ansible sobre dos distribuciones Linux:
         ![Chrony](./imagenes/3.3_chrony_4.png "Chrony.")
         
 4. ### Creación y Ejecución de playbooks de Ansible
-    Se crearán dos playbooks en el directorio `~/playbooks`
+    Se crearán dos playbooks en el directorio `~/taller_linux2025/playbooks`
     Contenido de requirements.yml
+
     ```
     ---
     collections:
@@ -471,7 +472,7 @@ Aplicar los conocimientos básicos de Ansible sobre dos distribuciones Linux:
 
         ![fail2ban](./imagenes/6.3_fail2ban_3.png "fail2ban")
 
-        Luego de los 10 minutos vamos que la ip ya no está bloqueada: 
+        Luego de los 10 minutos vemos que la ip ya no está bloqueada: 
 
         ![fail2ban](./imagenes/6.3_fail2ban_4.png "fail2ban")
 
