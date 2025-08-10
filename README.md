@@ -7,8 +7,6 @@
 Andrés Acosta Andrade N.º 241131
 Martina De Leon Balbiani N.º 254416
 
-git@github.com:AA241131/taller_linux2025.git
-
 08/08/2025
 
 ---
@@ -351,8 +349,7 @@ Aplicar los conocimientos básicos de Ansible sobre dos distribuciones Linux:
             ansible.builtin.apt:
               name: "*"
               state: latest
-            notify: 
-	      - Reiniciar el equipo
+              notify: Reiniciar el equipo
 
           - name: Configurar Firewall
             community.general.ufw:
@@ -364,15 +361,13 @@ Aplicar los conocimientos básicos de Ansible sobre dos distribuciones Linux:
 
           - name: Login con clave publica, root no puede login
             ansible.builtin.lineinfile:
-              path: /etc/ssh/sshd_config
-              search_string: "{{ item.search_string }}"
+              path: /etc/ssh/sshd_config.d/50-cloud-init.conf
+              search_string: "PasswordAuthentication yes"
               state: present
-              line: "{{ item.line }}"
-            loop:
-              - {search_string: "#PasswordAuthentication yes", line: PasswordAuthentication no }
-              - {search_string: "#PermitRootLogin prohibit-password", line: PermitRootLogin no }
-            notify: 
-	      - Reiniciar SSH
+              line: |
+                PasswordAuthentication no 
+                PermitRootLogin no       
+            notify: Reiniciar SSH
 
           - name: Instalar fail2ban
             ansible.builtin.package:
@@ -381,7 +376,7 @@ Aplicar los conocimientos básicos de Ansible sobre dos distribuciones Linux:
 
           - name: Configurar fail2ban
             ansible.builtin.copy:
-              src: ../jail.local
+              src: ~/taller_linux2025/jail.local
               dest: /etc/fail2ban/jail.local
 
           - name: Iniciar y habilitar fail2ban
@@ -396,7 +391,7 @@ Aplicar los conocimientos básicos de Ansible sobre dos distribuciones Linux:
 
             - name: Reiniciar SSH
               ansible.builtin.service:
-                name: ssh
+                name: sshd
                 state: restarted
         ```
 
@@ -407,26 +402,79 @@ Aplicar los conocimientos básicos de Ansible sobre dos distribuciones Linux:
         Ejecutar playbook
 
         `ansible-playbook playbooks/hardening.yml -K`
-
-		![NFS_Setup](./imagenes/4.2_hardening_3.png "NFS Setup.")
-
-        Ejecutamos de nuevo para comprobar el estado y confirmar que no se activan los handlers.
-
+        
         ![NFS_Setup](./imagenes/4.2_hardening_2.png "NFS Setup.")
         
 5. ### Cuestionario
     1. #### ¿Qué es Ansible?
         Ansible es un software utilizado para automatizar la gestión de sistemas remotos y controlar su estado final mediante declaraciones de estado. 
     2. #### ¿Qué es un playbook?
-        Un playbook es una receta que definir estados y configuraciones, la cual puede ser reutilizada en el mismo u otros sistemas, obteniendo resultados idénticos. 
+        Un playbook es una receta que define estados y configuraciones, la cual puede ser reutilizada en el mismo u otros sistemas, obteniendo resultados idénticos. 
     3. #### ¿Qué información contiene un inventario de Ansible?
         Un inventario es una manera prolija de definir hosts, grupos y variables, para luego utilizar estas definiciones tanto en playbooks como en ejecuciones ad-hoc. 
     4. #### ¿Qué es un módulo de Ansible?
         Un módulo es una unidad de código que puede controlar recursos del sistema, o ejecutar comandos. Existen módulos ya creados que permiten interactuar con diferentes partes de un sistema, y realizar tareas específicas, lo cual facilita mucho la creación de playbooks. 
     5. #### ¿Qué ventajas tiene Ansible sobre otros métodos de automatización?
         Facilidad de uso, simplicidad, seguridad y confiabilidad. No usa un agente, lo cual lo hace más fácil de mantener y ejecutar. 
+6. ### Anexo
+    
+    Prueba de bloqueo de ssh y fail2ban según definimos en hardening.yml
+    
+    1. #### PasswordAuthentication
+          
+        Creamos un usuario test en ubuntu01
 
-6. ### Referencias
+        ```
+        useradd --comment "usuario de prueba" --no-create-home --password $(openssl passwd -salt sal prueba) testuser
+        ```
+
+        el archivo `/etc/ssh/sshd_config.d/50-cloud-init.conf` tiene preferencia sobre `/etc/ssh/sshd_config`, por lo que hay que deshabilitar editar la línea ahí, o borrarla. 
+        
+        ![man sshd_config](./imagenes/6.1_passwordauthentication_1.png "sshd_config Debian")
+
+        Probamos el login y confirmamos que falla: 
+          
+        ![bloqueo ssh](./imagenes/6.1_passwordauthentication_2.png "bloqueo ssh")
+          
+    2. PermitRootLogin
+        La cuenta root está bloqueada por defecto en Ubuntu: 
+
+        ![root](./imagenes/6.2_permitrootlogin_1.png "root locked")
+
+        La desbloqueamos y asignamos el password del curso: 
+
+        `passwd -u root`
+
+        Confirmamos que podemos loguearnos con ella:
+
+        ![root login ssh](./imagenes/6.2_permitrootlogin_2.png "root login ssh")
+
+        Modificamos `/etc/ssh/sshd_config.d/50-cloud-init.conf` agregando la línea `PermitRootLogin no`, reiniciamos el servicio ssh, `systemctl restart ssh`. 
+
+        Intentamos nuevamente y el login es bloqueado: 
+
+        ![root login ssh](./imagenes/6.2_permitrootlogin_3.png "root login ssh blocked")
+
+    3. fail2ban
+        Activamos el login por password, y forzamos un error 5 veces. La conexión se rechazada:
+
+        ![fail2ban](./imagenes/6.3_fail2ban_1.png "fail2ban")
+
+        Vemos la confirmación de la ip bloqueada en ubuntu01 con el comando `fail2ban-client status sshd`:
+
+        ![fail2ban](./imagenes/6.3_fail2ban_2.png "fail2ban")
+
+        `nft list ruleset`
+
+        ![fail2ban](./imagenes/6.3_fail2ban_3.png "fail2ban")
+
+        Luego de los 10 minutos vamos que la ip ya no está bloqueada: 
+
+        ![fail2ban](./imagenes/6.3_fail2ban_4.png "fail2ban")
+
+        ![fail2ban](./imagenes/6.3_fail2ban_5.png "fail2ban")
+
+7. ### Referencias
     https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/configuring_and_managing_networking/configuring-an-ethernet-connection_configuring-and-managing-networking
     https://documentation.ubuntu.com/server/explanation/networking/configuring-networks/
     https://www.redhat.com/en/blog/configure-ssh-keygen
@@ -456,5 +504,4 @@ Aplicar los conocimientos básicos de Ansible sobre dos distribuciones Linux:
     https://github.com/fail2ban/fail2ban/wiki/Proper-fail2ban-configuration
     https://docs.ansible.com/ansible/latest/collections/ansible/builtin/copy_module.html
     https://www.redhat.com/en/ansible-collaborative/how-ansible-works
-
 
