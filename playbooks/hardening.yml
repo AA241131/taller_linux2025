@@ -21,13 +21,12 @@
 
   - name: Login con clave publica, root no puede login
     ansible.builtin.lineinfile:
-      path: /etc/ssh/sshd_config
-      search_string: "{{ item.search_string }}"
+      path: /etc/ssh/sshd_config.d/50-cloud-init.conf
+      search_string: "PasswordAuthentication yes"
       state: present
-      line: "{{ item.line }}"
-    loop:
-      - {search_string: "#PasswordAuthentication yes", line: PasswordAuthentication no }
-      - {search_string: "#PermitRootLogin prohibit-password", line: PermitRootLogin no }
+      line: |
+        PasswordAuthentication no 
+        PermitRootLogin no
     notify: 
       - Reiniciar SSH
 
